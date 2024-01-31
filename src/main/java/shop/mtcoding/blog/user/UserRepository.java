@@ -13,6 +13,7 @@ public class UserRepository {
     public UserRepository(EntityManager em) {
         this.em = em;
     }
+
     @Transactional
     public void save(UserRequest.JoinDTO requestDTO) {
         Query query = em.createNativeQuery("insert into user_tb (username, password, email) values (?, ?, ?)");
@@ -45,4 +46,17 @@ public class UserRepository {
         }
 
     }
+
+    public User findByUsername(String username) {
+        Query query = em.createNativeQuery("select * from user_tb where username=?", User.class);
+        query.setParameter(1, username);
+
+        try{
+            User user = (User) query.getSingleResult();
+            return user;
+        }catch (Exception e){
+            return null;
+        }
+    }
+
 }

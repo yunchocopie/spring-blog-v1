@@ -36,12 +36,11 @@ public class UserController {
 
         // 2. Model 필요 select * from user_tb where username=? and password=?
         User user = userRepository.findByUsernameAndPassword(requestDTO);
-        System.out.println(user);
 
         if (user == null) {
             return "error/401";
         } else {
-            session.setAttribute("sessoionUser", user);
+            session.setAttribute("sessionUser", user);
             return "redirect:/";
         }
 
@@ -58,11 +57,16 @@ public class UserController {
         if(requestDTO.getUsername().length() < 3){
             return "error/400";
         }
+        // 2. 동일 username 체크
+        User user = userRepository.findByUsername(requestDTO.getUsername());
+        if(user == null){
+            //3. Model에게 위임하기
+            userRepository.save(requestDTO);
+        }else{
+            return "error/400";
+        }
 
-        // 2. Model에게 위임하기
-        userRepository.save(requestDTO);
-
-        // 3. 응답
+        // 4. 응답
         return "redirect:/loginForm";
     }
 
@@ -83,6 +87,7 @@ public class UserController {
 
     @GetMapping("/logout")
     public String logout() {
+        session.invalidate();
         return "redirect:/";
     }
 }
